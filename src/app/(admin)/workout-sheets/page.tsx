@@ -4,13 +4,6 @@ import { useState } from "react";
 import { useWorkoutSheets } from "@/hooks/useWorkoutSheets";
 import { WorkoutSheet } from "@/services/workoutSheetService";
 
-interface User {
-  id: string;
-  name: string;
-  username: string;
-  role: string;
-}
-
 export default function WorkoutSheetList() {
   const { sheets, loading, removeSheet } = useWorkoutSheets();
   const [selectedSheet, setSelectedSheet] = useState<WorkoutSheet | null>(null);

@@ -7,21 +7,8 @@ import { CreateWorkoutSheetRequest } from '@/services/workoutSheetService'
 import { Select } from '@/components/inputs/Select'
 import { Input } from '@/components/inputs/Input'
 import { Button } from '@/components/buttons/Button'
-import { console } from 'node:inspector'
 
-interface ExerciseForm {
-  name: string
-  reps: number
-  sets: number
-  muscleGroup: string
-  restPeriod: number
-  videoLink?: string
-}
 
-interface WorkoutForm {
-  name: string
-  exercises: ExerciseForm[]
-}
 
 export default function CreateWorkoutSheetPage() {
   const { addSheet } = useWorkoutSheets()

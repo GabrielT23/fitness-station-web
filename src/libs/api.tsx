@@ -1,4 +1,3 @@
-import { useAuth } from "@/hooks/useAuth";
 import axios, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 

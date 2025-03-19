@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Logo from '../../../assets/logo.jpg';
@@ -29,12 +29,6 @@ export default function LoginPage() {
       setError(`Erro ao realizar login: ${error}`);
     }
   }
-
-  const [isClient, setIsClient] = useState(false)
- 
-  useEffect(() => {
-    setIsClient(true)
-  }, [])
 
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">

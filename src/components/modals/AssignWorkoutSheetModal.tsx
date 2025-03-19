@@ -1,6 +1,6 @@
 import { useWorkoutSheets } from '@/hooks/useWorkoutSheets';
-import { listWorkoutSheets, WorkoutSheet } from '@/services/workoutSheetService';
-import { useState, useEffect, useCallback } from 'react';
+
+import { useState, useCallback } from 'react';
 
 
 interface AssignWorkoutSheetModalProps {

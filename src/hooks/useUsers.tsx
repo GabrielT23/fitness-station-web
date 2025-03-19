@@ -30,7 +30,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
     try {
       const data = await listUsers();
       setUsers(data);
-    } catch (err) {
+    } catch {
       toast.error('Erro ao carregar usuários.');
     } finally {
       setLoading(false);
@@ -42,7 +42,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       const newUser = await createUser(user);
       setUsers((prev) => [...prev, newUser]);
       toast.success('Usuário criado com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao criar usuário.');
     }
   }, []);
@@ -52,7 +52,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       const updatedUser = await updateUser(id, user);
       setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
       toast.success('Usuário atualizado com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao atualizar usuário.');
     }
   }, []);
@@ -62,7 +62,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       await deleteUser(userId);
       setUsers((prev) => prev.filter((user) => user.id !== userId));
       toast.success('Usuário removido com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao remover usuário.');
     }
   }, []);

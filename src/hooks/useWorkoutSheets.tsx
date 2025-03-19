@@ -37,7 +37,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
         setLoading(true);
         const data = await listWorkoutSheets();
         setSheets(data);
-      } catch (err) {
+      } catch {
         toast.error('Erro ao buscar fichas de treino.');
       } finally {
         setLoading(false);
@@ -52,7 +52,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
       const createdSheet = await createWorkoutSheet(newSheet);
       setSheets((prevSheets) => [...prevSheets, createdSheet]);
       toast.success('Ficha de treino criada com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao criar ficha de treino.');
     }
   };
@@ -64,7 +64,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
         prevSheets.map((sheet) => (sheet.id === response.id ? response : sheet))
       );
       toast.success('Ficha de treino atualizada com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao atualizar ficha de treino.');
     }
   };
@@ -73,7 +73,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
     try {
       await linkSheetToUser({ userId, workoutSheetId });
       toast.success('Ficha de treino vinculada ao usuário com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao vincular ficha de treino ao usuário.');
     }
   };
@@ -82,7 +82,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
     try {
       await unLinkSheetToUser({ userId, workoutSheetId });
       toast.success('Ficha de treino vinculada ao usuário com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao vincular ficha de treino ao usuário.');
     }
   };
@@ -92,7 +92,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
       await deleteWorkoutSheet(id);
       setSheets((prevSheets) => prevSheets.filter((sheet) => sheet.id !== id));
       toast.success('Ficha de treino removida com sucesso!');
-    } catch (err) {
+    } catch {
       toast.error('Erro ao remover ficha de treino.');
     }
   };
