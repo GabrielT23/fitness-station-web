@@ -41,7 +41,6 @@ export default function WorkoutSheetsPage() {
             onClick={() => router.push(`/workoutSheets/${sheet.id}`)}
           >
             <h2 className="text-xl font-semibold">{sheet.name}</h2>
-            <p>Tipo: {sheet.type}</p>
             <p>Status: {sheet.isActive ? 'Ativa' : 'Inativa'}</p>
           </li>
         ))}

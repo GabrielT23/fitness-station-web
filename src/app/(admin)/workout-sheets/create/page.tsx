@@ -189,10 +189,18 @@ export default function CreateWorkoutSheetPage() {
                       onChange={e => updateExercise(workoutIndex, exerciseIndex, 'name', e.target.value)}
                       required
                     />
-                    <Input
+                    <Select
                       label="Grupo Muscular"
                       value={exercise.muscleGroup}
                       onChange={e => updateExercise(workoutIndex, exerciseIndex, 'muscleGroup', e.target.value)}
+                      options={[
+                        { value: 'CHEST', label: 'Peito' },
+                        { value: 'BACK', label: 'Costas' },
+                        { value: 'LEGS', label: 'Pernas' },
+                        { value: 'SHOULDERS', label: 'Ombros' },
+                        { value: 'ARMS', label: 'Braços' },
+                        { value: 'CORE', label: 'Core' },
+                      ]}
                       required
                     />
                     <Input

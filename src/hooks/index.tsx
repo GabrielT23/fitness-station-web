@@ -1,7 +1,6 @@
 "use client"
 
 import { ReactNode } from 'react';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from '@/hooks/useAuth';
 import { UsersProvider } from '@/hooks/useUsers';
@@ -26,7 +25,6 @@ export function AppProvider({ children }: IAppProviderProps) {
         ),
         <>{children}</>,
       )}
-      <ToastContainer />
     </>
   );
 }
