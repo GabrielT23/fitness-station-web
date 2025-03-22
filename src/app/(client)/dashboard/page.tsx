@@ -4,6 +4,16 @@ import { useRouter } from 'next/navigation';
 export default function Dashboard() {
   const router = useRouter();
 
+  const logout = () => {
+    // Limpa os cookies relacionados ao usuário
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'user_type=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'companyId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    // Redireciona para a página de login
+    router.push('/login');
+  };
+
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
@@ -19,6 +29,12 @@ export default function Dashboard() {
           onClick={() => router.push('/workoutSheets')}
         >
           Fichas de Treino
+        </button>
+        <button 
+          className="bg-red-500 text-white px-4 py-2 rounded"
+          onClick={logout}
+        >
+          Sair
         </button>
       </div>
     </div>

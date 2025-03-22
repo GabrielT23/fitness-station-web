@@ -1,13 +1,13 @@
-// components/menu/DrawerMenu.tsx
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { FaTimes, FaBars, FaUsers, FaRegChartBar, FaPlusCircle } from 'react-icons/fa'
+import { FaTimes, FaBars, FaUsers, FaRegChartBar, FaPlusCircle, FaSignOutAlt } from 'react-icons/fa'
 
 const DrawerMenu = () => {
   const pathname = usePathname()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
   const menuItems = [
@@ -15,6 +15,14 @@ const DrawerMenu = () => {
     { href: '/workout-sheets', label: 'Fichas de Treino', icon: FaRegChartBar },
     { href: '/workout-sheets/create', label: 'Criar Ficha', icon: FaPlusCircle },
   ]
+
+  const logout = () => {
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+    document.cookie = 'user_type=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+    document.cookie = 'userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+    document.cookie = 'companyId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;'
+    router.push('/login')
+  }
 
   return (
     <>
@@ -36,7 +44,7 @@ const DrawerMenu = () => {
 
       {/* Drawer */}
       <div
-        className={`fixed md:relative md:translate-x-0 top-0 left-0 posis h-lvh w-64 bg-gray-800 text-white z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed md:relative md:translate-x-0 top-0 left-0 h-screen w-64 bg-gray-800 text-white z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -50,7 +58,7 @@ const DrawerMenu = () => {
           </button>
         </div>
 
-        <nav className="p-4">
+        <nav className="p-4 flex flex-col justify-between h-full">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.href}>
@@ -67,6 +75,15 @@ const DrawerMenu = () => {
               </li>
             ))}
           </ul>
+
+          {/* Logout Button */}
+          <button
+            onClick={logout}
+            className="flex items-center justify-center p-3 mt-4 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+          >
+            <FaSignOutAlt className="mr-2 text-lg" />
+            Sair
+          </button>
         </nav>
       </div>
     </>
