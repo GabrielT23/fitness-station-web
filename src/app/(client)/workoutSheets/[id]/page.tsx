@@ -128,9 +128,19 @@ export default function WorkoutSheetDetailsPage() {
 }
 
 // Componente Accordion para cada exercício
+// Componente Accordion para cada exercício
 interface AccordionExerciseProps {
   exercise: Exercise;
 }
+
+const muscleGroupTranslations: Record<string, string> = {
+  CHEST: "Peito",
+  BACK: "Costas",
+  LEGS: "Pernas",
+  SHOULDERS: "Ombros",
+  ARMS: "Braços",
+  CORE: "Core",
+};
 
 function AccordionExercise({ exercise }: AccordionExerciseProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -149,10 +159,11 @@ function AccordionExercise({ exercise }: AccordionExerciseProps) {
       {isOpen && (
         <div className="px-4 py-2 border-t">
           <p>
-            <strong>S´ries:</strong> {exercise.sets}
+            <strong>Séries:</strong> {exercise.sets}
           </p>
           <p>
-            <strong>Grupo muscular:</strong> {exercise.muscleGroup}
+            <strong>Grupo muscular:</strong>{" "}
+            {muscleGroupTranslations[exercise.muscleGroup] || exercise.muscleGroup}
           </p>
           <p>
             <strong>Descanso:</strong> {exercise.restPeriod} segundos
