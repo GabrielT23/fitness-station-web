@@ -149,7 +149,7 @@ function AccordionExercise({ exercise }: AccordionExerciseProps) {
       {isOpen && (
         <div className="px-4 py-2 border-t">
           <p>
-            <strong>Sets:</strong> {exercise.sets}
+            <strong>S´ries:</strong> {exercise.sets}
           </p>
           <p>
             <strong>Grupo muscular:</strong> {exercise.muscleGroup}
