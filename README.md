@@ -52,6 +52,7 @@ Este projeto faz parte de um sistema que tem como objetivo auxiliar academias no
 ---
 ### **Estrutura de pastas**
 
+```plaintext
 ./src
 ├── app
 │   ├── (admin)         # Páginas e funcionalidades do administrador
