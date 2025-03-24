@@ -4,7 +4,12 @@ Site para gerenciamento de fichas de treino e usuários em uma academia.
 
 Este projeto faz parte de um sistema que tem como objetivo auxiliar academias no gerenciamento de fichas de treino, usuários e exercícios. Ele permite que administradores e clientes interajam com o sistema de forma eficiente, promovendo uma experiência organizada e intuitiva.
 
-![image](https://github.com/user-attachments/assets/fitness-station-preview.png)
+![image](https://github.com/user-attachments/assets/4d1a551a-6076-4b19-9fa7-efebfc70d9c3)
+
+
+![image](https://github.com/user-attachments/assets/6a87ab89-7190-4fbf-8a0a-c96b42db5167)
+
+
 
 ---
 
