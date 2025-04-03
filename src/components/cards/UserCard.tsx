@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { User } from "@/services/usersServices";
 import { FaEllipsisV } from "react-icons/fa";
 import { useUsers } from "@/hooks/useUsers";
@@ -21,6 +21,7 @@ export const UserCard: React.FC<UserCardProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isConfirmPayment, setIsConfirmPayment] = useState(false);
   const { setPaymentUser } = useUsers();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -29,6 +30,20 @@ export const UserCard: React.FC<UserCardProps> = ({
   const isPaymentOverdue = user.lastPayment
     ? dayjs().diff(dayjs(user.lastPayment), "day") > 30
     : true;
+
+  // Fechar o menu ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="bg-white p-4 rounded shadow-md w-full flex items-center relative">
@@ -54,7 +69,7 @@ export const UserCard: React.FC<UserCardProps> = ({
       </div>
 
       {/* Botão de 3 pontinhos */}
-      <div className="relative flex-shrink-0">
+      <div className="relative flex-shrink-0" ref={menuRef}>
         <button
           onClick={toggleMenu}
           className="p-2 rounded-full hover:bg-gray-200 focus:outline-none"

@@ -92,6 +92,9 @@ export default function UserPage() {
       filteredUsers = filteredUsers.filter((user) => user.role === filterRole);
     }
 
+    // Ordenar usuários em ordem alfabética
+    filteredUsers.sort((a, b) => a.name.localeCompare(b.name));
+
     return filteredUsers;
   };
 
@@ -101,9 +104,18 @@ export default function UserPage() {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">
-        Lista de Usuários <span className="text-gray-500">({filteredUsers.length})</span>
-      </h2>
+      {/* Título com total de usuários e botão de criar */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">
+          Lista de Usuários <span className="text-gray-500">({filteredUsers.length})</span>
+        </h2>
+        <button
+          onClick={handleCreateUser}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Criar Usuário
+        </button>
+      </div>
 
       {/* Barra de Pesquisa e Filtros */}
       <div className="flex items-center gap-4 mb-6">
