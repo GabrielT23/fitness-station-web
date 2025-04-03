@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
 import { useAuth } from "@/hooks/useAuth";
 import CreateEditUserModal from "@/components/modals/CreateEditUserModal";
 import AssignWorkoutSheetModal from "@/components/modals/AssignWorkoutSheetModal";
 import { User } from "@/services/usersServices";
+import { UserCard } from "@/components/cards/UserCard";
+import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
+import { FaSearch, FaFilter } from "react-icons/fa";
 
 export default function UserPage() {
   const { users, fetchUsers, loading, removeUser } = useUsers();
@@ -16,11 +19,34 @@ export default function UserPage() {
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | undefined>(undefined);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState<string | null>(null);
+  const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+
+  const filterMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (loggedInUser) {
       fetchUsers();
     }
   }, [loggedInUser, fetchUsers]);
+
+  // Fechar o menu de filtros ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filterMenuRef.current &&
+        !filterMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsFilterMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
@@ -47,83 +73,112 @@ export default function UserPage() {
     setIsConfirmDeleteOpen(true);
   };
 
-  const admins = users.filter((user) => user.role === "admin");
-  const clients = users.filter((user) => user.role === "client");
+  const toggleFilterMenu = () => {
+    setIsFilterMenuOpen(!isFilterMenuOpen);
+  };
+
+  const applyFilters = () => {
+    let filteredUsers = users;
+
+    // Filtro por nome (ignorar caixa alta/baixa)
+    if (searchTerm) {
+      filteredUsers = filteredUsers.filter((user) =>
+        user.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filtro por função (admin ou client)
+    if (filterRole) {
+      filteredUsers = filteredUsers.filter((user) => user.role === filterRole);
+    }
+
+    return filteredUsers;
+  };
+
+  const filteredUsers = applyFilters();
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Lista de Usuários</h2>
-      <button
-        onClick={handleCreateUser}
-        className="bg-blue-500 text-white p-2 rounded mb-4"
-      >
-        Criar Usuário
-      </button>
+      <h2 className="text-2xl font-bold mb-4">
+        Lista de Usuários <span className="text-gray-500">({filteredUsers.length})</span>
+      </h2>
 
-      {/* Seção de Admins */}
-      <div className="mb-8">
-        <h3 className="text-xl font-bold mb-4">Administradores</h3>
-        <div className="space-y-4">
-          {admins.map((user) => (
-            <div
-              key={user.id}
-              className="bg-white p-4 rounded shadow-md w-full flex justify-between items-center flex-wrap"
-            >
-              <h3 className="text-xl font-bold">{user.name}</h3>
-              <div className="mt-4">
-                <button
-                  onClick={() => handleEditUser(user)}
-                  className="bg-yellow-500 text-white p-1 rounded mr-2"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => confirmDeleteUser(user)}
-                  className="bg-red-500 text-white p-1 rounded"
-                >
-                  Excluir
-                </button>
-              </div>
+      {/* Barra de Pesquisa e Filtros */}
+      <div className="flex items-center gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Pesquisar por nome"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border p-2 rounded w-full"
+        />
+        <button
+          onClick={toggleFilterMenu}
+          className="p-2 bg-gray-200 rounded hover:bg-gray-300"
+        >
+          <FaFilter />
+        </button>
+        <button
+          onClick={() => setSearchTerm("")}
+          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          <FaSearch />
+        </button>
+
+        {/* Menu de Filtros */}
+        {isFilterMenuOpen && (
+          <div
+            ref={filterMenuRef}
+            className="absolute bg-white border rounded shadow-md p-4 z-10"
+          >
+            <h3 className="font-bold mb-2">Filtrar por Função</h3>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => setFilterRole(null)}
+                className={`p-2 rounded ${
+                  filterRole === null ? "bg-blue-500 text-white" : "bg-gray-200"
+                }`}
+              >
+                Todos
+              </button>
+              <button
+                onClick={() => setFilterRole("admin")}
+                className={`p-2 rounded ${
+                  filterRole === "admin"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                Administradores
+              </button>
+              <button
+                onClick={() => setFilterRole("client")}
+                className={`p-2 rounded ${
+                  filterRole === "client"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
+              >
+                Alunos
+              </button>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Seção de Clients */}
-      <div>
-        <h3 className="text-xl font-bold mb-4">Alunos</h3>
-        <div className="space-y-4">
-          {clients.map((user) => (
-            <div
-              key={user.id}
-              className="bg-white p-4 rounded shadow-md w-full flex justify-between items-center flex-wrap"
-            >
-              <h3 className="text-xl font-bold">{user.name}</h3>
-              <div className="mt-4">
-                <button
-                  onClick={() => handleEditUser(user)}
-                  className="bg-yellow-500 text-white p-1 rounded mr-2"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => confirmDeleteUser(user)}
-                  className="bg-red-500 text-white p-1 rounded mr-2"
-                >
-                  Excluir
-                </button>
-                <button
-                  onClick={() => handleAssignWorkoutSheet(user)}
-                  className="bg-green-500 text-white p-1 rounded"
-                >
-                  Atribuir Ficha
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Lista de Usuários */}
+      <div className="space-y-4">
+        {filteredUsers.map((user) => (
+          <UserCard
+            key={user.id}
+            user={user}
+            onEdit={handleEditUser}
+            onDelete={confirmDeleteUser}
+            onAssignWorkoutSheet={handleAssignWorkoutSheet}
+          />
+        ))}
       </div>
 
       {/* Modal de Criar/Editar Usuário */}
@@ -142,30 +197,13 @@ export default function UserPage() {
       )}
 
       {/* Modal de Confirmação de Exclusão */}
-      {isConfirmDeleteOpen && userToDelete && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Confirmar Exclusão</h2>
-            <p>
-              Tem certeza de que deseja excluir o usuário {userToDelete.name}?
-            </p>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setIsConfirmDeleteOpen(false)}
-                className="bg-gray-500 text-white p-2 rounded mr-2"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => handleDeleteUser(userToDelete.id)}
-                className="bg-red-500 text-white p-2 rounded"
-              >
-                Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        isOpen={isConfirmDeleteOpen}
+        onClose={() => setIsConfirmDeleteOpen(false)}
+        onConfirm={() => handleDeleteUser(userToDelete?.id || "")}
+        message={`Tem certeza de que deseja excluir o usuário ${userToDelete?.name}?`}
+        title="Confirmar Exclusão"
+      />
     </div>
   );
 }

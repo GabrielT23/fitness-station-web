@@ -31,22 +31,29 @@ const CreateEditUserModal: React.FC<CreateEditUserModalProps> = ({ user, isOpen,
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Remover espaços adicionais
+    const trimmedName = name.trim();
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    const trimmedRole = role.trim();
+
     const userData: CreateUserRequest = {
-      name,
-      username,
-      password,
-      role,
+      name: trimmedName,
+      username: trimmedUsername,
+      password: trimmedPassword,
+      role: trimmedRole,
       companyId: userLogged?.companyId || '',
     };
 
     if (user) {
-      if (password) {
+      if (trimmedPassword) {
         await editUser(
           {
-            name: name || user.name,
-            username: username || user.username,
-            role: role || user.role,
-            password,
+            name: trimmedName || user.name,
+            username: trimmedUsername || user.username,
+            role: trimmedRole || user.role,
+            password: trimmedPassword,
             companyId: user.companyId,
           },
           user.id
@@ -54,9 +61,9 @@ const CreateEditUserModal: React.FC<CreateEditUserModalProps> = ({ user, isOpen,
       } else {
         await editUser(
           {
-            name: name || user.name,
-            username: username || user.username,
-            role: role || user.role,
+            name: trimmedName || user.name,
+            username: trimmedUsername || user.username,
+            role: trimmedRole || user.role,
             companyId: user.companyId,
           },
           user.id

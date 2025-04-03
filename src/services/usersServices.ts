@@ -7,6 +7,7 @@ export interface User {
   username: string;
   name: string;
   role: string;
+  lastPayment?: string
   createdAt: string;
   updatedAt: string;
   companyId: string;
@@ -46,6 +47,11 @@ export async function getUserById(id: string): Promise<User> {
 
 export async function updateUser(id: string, data: Partial<CreateUserRequest>): Promise<User> {
   const response = await api.patch<User>(`/users/${id}`, data);
+  return response.data;
+}
+
+export async function setPayment(id: string): Promise<User> {
+  const response = await api.patch<User>(`/users/set-payment/${id}`);
   return response.data;
 }
 

@@ -882,6 +882,11 @@ data-view-byte-offset@^1.0.1:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
+dayjs@^1.11.13:
+  version "1.11.13"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
+  integrity sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==
+
 debug@^3.2.7:
   version "3.2.7"
   resolved "https://registry.npmjs.org/debug/-/debug-3.2.7.tgz"
@@ -1382,7 +1387,7 @@ find-up@^5.0.0:
   version "0.1.0"
   dependencies:
     axios "^1.8.3"
-    fitness-station-web "file:C:/Users/Gabriel/AppData/Local/Yarn/Cache/v6/npm-fitness-station-web-0.1.0-32961256-214d-46af-802e-38e8c63835be-1742298472959/node_modules/fitness-station-web"
+    fitness-station-web "file:C:/Users/Gabriel/AppData/Local/Yarn/Cache/v6/npm-fitness-station-web-0.1.0-2cfdd073-d78a-4619-942b-ecdd4f730e59-1743689691215/node_modules/fitness-station-web"
     js-cookie "^3.0.5"
     next "15.2.2"
     react "^19.0.0"
@@ -1390,6 +1395,7 @@ find-up@^5.0.0:
     react-icons "^5.5.0"
     react-modal "3.16.1"
     react-player "^2.16.0"
+    react-toastify "^11.0.5"
 
 flat-cache@^4.0.0:
   version "4.0.1"

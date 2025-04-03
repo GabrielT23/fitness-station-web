@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction, useCallback, ReactNode } from 'react';
-import { listUsers, createUser, updateUser, deleteUser, CreateUserRequest } from '../services/usersServices';
+import { listUsers, createUser, updateUser, deleteUser, CreateUserRequest, setPayment } from '../services/usersServices';
 import { User } from '@/services/usersServices';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,6 +13,7 @@ interface UseUsersReturn {
   fetchUsers: () => Promise<void>;
   addUser: (user: CreateUserRequest) => Promise<void>;
   editUser: (user: Partial<CreateUserRequest>, id: string) => Promise<void>;
+  setPaymentUser: (id: string) => Promise<void>;
   removeUser: (userId: string) => Promise<void>;
 }
 
@@ -57,6 +58,16 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const setPaymentUser = useCallback(async (id: string) => {
+    try {
+      const updatedUser = await setPayment(id);
+      setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+      toast.success('Usuário atualizado com sucesso!');
+    } catch {
+      toast.error('Erro ao atualizar usuário.');
+    }
+  }, []);
+
   const removeUser = useCallback(async (userId: string) => {
     try {
       await deleteUser(userId);
@@ -68,7 +79,7 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <UsersContext.Provider value={{ users, setUsers, fetchUsers, loading, addUser, editUser, removeUser }}>
+    <UsersContext.Provider value={{ users, setUsers, fetchUsers, loading, addUser, editUser, removeUser, setPaymentUser }}>
       {children}
     </UsersContext.Provider>
   );
