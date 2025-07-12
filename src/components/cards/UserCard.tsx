@@ -58,13 +58,20 @@ export const UserCard: React.FC<UserCardProps> = ({
       <div className="flex-grow flex-wrap">
         <h3 className="text-xl font-bold break-words">{user.name}</h3>
         {user.role !== "admin" && (
-          <p
-            className={`text-sm font-semibold ${
-              isPaymentOverdue ? "text-red-500" : "text-green-500"
-            }`}
-          >
-            {isPaymentOverdue ? "Não Pago" : "Pago"}
-          </p>
+          <>
+            <p
+              className={`text-sm font-semibold ${
+                isPaymentOverdue ? "text-red-500" : "text-green-500"
+              }`}
+            >
+              {isPaymentOverdue ? "Não Pago" : "Pago"}
+            </p>
+            <p className="text-xs text-gray-500">
+              {user.lastPayment
+                ? `Último pagamento: ${dayjs(user.lastPayment).format("DD/MM/YYYY")}`
+                : "Sem registro de pagamento"}
+            </p>
+          </>
         )}
       </div>
 
