@@ -8,7 +8,8 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  token: {  access_token: string;}
+  access_token: string;
+  refresh_token: string;
   role: string;
   userId: string;
   companyId: string;

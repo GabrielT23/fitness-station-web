@@ -1,72 +1,90 @@
-# Fitness Station Web
+# 🏋️‍♀️ Estação Fitness Web
 
-Site para gerenciamento de fichas de treino e usuários em uma academia.
+Acesse: [https://espacofitness.vercel.app](https://espacofitness.vercel.app)
 
-Este projeto faz parte de um sistema que tem como objetivo auxiliar academias no gerenciamento de fichas de treino, usuários e exercícios. Ele permite que administradores e clientes interajam com o sistema de forma eficiente, promovendo uma experiência organizada e intuitiva.
+**Estação Fitness** é uma plataforma web para academias que permite o gerenciamento de fichas de treino e avaliação física dos alunos, oferecendo uma experiência simples e organizada tanto para administradores quanto para clientes.
 
-![image](https://github.com/user-attachments/assets/4d1a551a-6076-4b19-9fa7-efebfc70d9c3)
-
-
-![image](https://github.com/user-attachments/assets/6a87ab89-7190-4fbf-8a0a-c96b42db5167)
-
-
+Este projeto faz parte de um sistema completo voltado à organização e otimização da rotina de treinos em academias.
 
 ---
 
-### **Tecnologias Utilizadas**
-
-* **Next.js:** Um framework React para desenvolvimento de aplicações web com renderização do lado do servidor e geração de sites estáticos.
-* **Tailwind CSS:** Um framework CSS utilitário que permite criar designs customizados rapidamente usando classes pré-definidas.
-* **React Icons:** Biblioteca de ícones para React, utilizada para melhorar a interface do usuário.
-* **React Toastify:** Biblioteca para exibição de notificações toast.
-* **Axios:** Cliente HTTP para comunicação com a API.
-* **React Player:** Biblioteca para exibição de vídeos de exercícios.
+![Dashboard](https://github.com/user-attachments/assets/4d1a551a-6076-4b19-9fa7-efebfc70d9c3)
+![Listagem de exercícios](https://github.com/user-attachments/assets/6a87ab89-7190-4fbf-8a0a-c96b42db5167)
 
 ---
 
-### **Funcionalidades**
+## 🚀 Funcionalidades
 
-* **Gerenciamento de Fichas de Treino:**
-  - Criação, edição e exclusão de fichas de treino.
-  - Vinculação de fichas de treino a usuários.
-  - Exibição de exercícios com vídeos explicativos.
+### 🔐 Autenticação de Usuários
+- Login com autenticação baseada em cookies.
+- Redirecionamento automático com base no tipo de usuário (administrador ou cliente).
 
-* **Gerenciamento de Usuários:**
-  - Cadastro, edição e exclusão de usuários.
-  - Diferenciação entre administradores e clientes.
+### 📊 Dashboard (Tela Inicial)
+Após o login, o usuário é redirecionado para o dashboard, onde tem acesso a:
+- **Fichas de Avaliação**: resultados de avaliações físicas e progresso dos alunos.
+- **Fichas de Treino**: agrupadas por gênero (masculino e feminino).
+- Botão de **Logout** no rodapé.
 
-* **Autenticação de Usuários:**
-  - Login com autenticação baseada em cookies.
-  - Redirecionamento de usuários com base no tipo (admin ou cliente).
+### 🏋️‍♂️ Fichas de Treino
+- Separação entre treinos masculinos e femininos.
+- Listagem de exercícios por grupo muscular.
+- Cada exercício apresenta:
+  - Nome (ex: *Peck Deck / Crucifixo Máquina*)
+  - Séries e repetições (ex: 4 séries de 12 repetições)
+  - Grupo muscular (ex: Peito)
+  - Tempo de descanso (ex: 30 segundos)
+  - Vídeo explicativo embutido (via React Player)
 
-* **Dashboard:**
-  - Visualização de fichas de treino e avaliações.
-  - Botão de logout para encerrar a sessão.
+### 👥 Gerenciamento de Usuários (Administrador)
+- Cadastro, edição e exclusão de usuários.
+- Associação de fichas de treino a cada aluno.
+
+### 📝 Gerenciamento de Fichas de Treino
+- Criação e edição de fichas de treino com exercícios personalizados.
+- Visualização com descrição detalhada e vídeo demonstrativo.
 
 ---
 
-### **Começando**
+## 🛠️ Tecnologias Utilizadas
+
+- **Next.js** — Framework React com suporte a SSR e SSG.
+- **Tailwind CSS** — Estilização com classes utilitárias.
+- **React Icons** — Ícones para interfaces modernas.
+- **React Toastify** — Notificações toast elegantes.
+- **Axios** — Requisições HTTP para integração com a API.
+- **React Player** — Player de vídeo para demonstrações de exercícios.
+
+---
+
+## ▶️ Como Rodar Localmente
 
 1. **Clone o repositório:**
    ```bash
    git clone https://github.com/seu-usuario/fitness-station-web.git
    cd fitness-station-web
+   ```
+2. **Instale as dependências:**
     ```bash
-    npm install
-
+   npm install
+    ```
+3. **Inicie o servidor de desenvolvimento:**
+    ```bash
+   npm run dev
+    ```
 ---
-### **Estrutura de pastas**
+
+## 📂 Estrutura de Pastas
 
 ```plaintext
 ./src
 ├── app
-│   ├── (admin)         # Páginas e funcionalidades do administrador
-│   ├── (client)        # Páginas e funcionalidades do cliente
-│   ├── (public)        # Páginas públicas (ex.: login)
-│   └── [layout.tsx](http://_vscodecontentref_/0)      # Layout principal da aplicação
-├── components          # Componentes reutilizáveis (botões, inputs, modais, etc.)
-├── hooks               # Hooks personalizados (ex.: autenticação, usuários, fichas)
-├── libs                # Configurações de bibliotecas externas (ex.: Axios)
-├── services            # Serviços para comunicação com a API
-├── styles              # Estilos globais (ex.: Tailwind CSS)
+│   ├── (admin)         # Páginas exclusivas para administradores
+│   ├── (client)        # Páginas acessíveis por clientes
+│   ├── (public)        # Telas públicas como login
+│   └── layout.tsx      # Layout principal da aplicação
+├── components          # Componentes reutilizáveis (botões, modais, inputs, etc.)
+├── hooks               # Hooks customizados (ex.: autenticação, fichas)
+├── libs                # Configurações externas (ex.: axios)
+├── services            # Integrações com a API
+├── styles              # Estilos globais
 └── utils               # Funções utilitárias

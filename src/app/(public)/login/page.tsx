@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Logo from '../../../assets/logo.jpg';
+import Logo from '../../../assets/logo.png';
 import { login } from '../../../services/authService';
 import { toast } from 'react-toastify';
 
@@ -25,7 +25,8 @@ export default function LoginPage() {
       }
       setLoading(true);
       const data = await login({ username: trimmedUsername, password: trimmedPassword });
-      document.cookie = `access_token=${data.token.access_token}; path=/;`;
+      document.cookie = `refresh_token=${data.refresh_token}; path=/;`;
+      document.cookie = `access_token=${data.access_token}; path=/;`;
       document.cookie = `user_type=${data.role}; path=/;`;
       document.cookie = `userId=${data.userId}; path=/;`;
       document.cookie = `companyId=${data.companyId}; path=/;`;
