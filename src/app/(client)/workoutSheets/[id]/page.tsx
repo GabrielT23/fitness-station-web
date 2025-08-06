@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import _ReactPlayer, { ReactPlayerProps } from 'react-player';
 import { getWorkoutSheetById } from "@/services/workoutSheetService";
 import { listWorkouts } from "@/services/workoutService";
 import { listExercises } from "@/services/exerciseService";
-
+import Image from "next/image";
+import Logo from "../../../../assets/logo.png";
 
 interface WorkoutSheet {
   id: string;
@@ -41,8 +42,8 @@ interface Exercise {
 const ReactPlayer = _ReactPlayer as unknown as React.FC<ReactPlayerProps>;
 
 export default function WorkoutSheetDetailsPage() {
-  const params = useParams();
-  const { id } = params; // id da ficha de treino
+  const { id } = useParams();
+  const router = useRouter();
   const [sheet, setSheet] = useState<WorkoutSheet | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -51,87 +52,89 @@ export default function WorkoutSheetDetailsPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Busca os detalhes da ficha de treino
-        const sheetData = await getWorkoutSheetById(id as string);
+        const sheetData = await getWorkoutSheetById(id! as string);
         setSheet(sheetData);
 
-        // Busca os treinos e filtra os que pertencem à ficha
         const workoutsData = await listWorkouts();
-        const filteredWorkouts = workoutsData.filter(
-          (workout: Workout) => workout.workoutSheetId === id
-        );
-        setWorkouts(filteredWorkouts);
-        if (filteredWorkouts.length > 0) {
-          setActiveWorkoutId(filteredWorkouts[0].id);
-        }
+        const filtered = workoutsData.filter(w => w.workoutSheetId === id);
+        setWorkouts(filtered);
+        if (filtered.length) setActiveWorkoutId(filtered[0].id);
 
-        // Busca todos os exercícios
         const exercisesData = await listExercises();
         setExercises(exercisesData);
       } catch (error) {
-        console.error('Erro ao buscar dados:', error);
+        console.error("Erro ao buscar dados:", error);
       }
     }
     fetchData();
   }, [id]);
 
-  // Filtra os exercícios do treino ativo
-  const activeExercises = exercises.filter(
-    (exercise) => exercise.workoutId === activeWorkoutId
-  );
+  const activeExercises = exercises.filter(ex => ex.workoutId === activeWorkoutId);
 
   return (
-    <div className="p-8">
-      {sheet ? (
-        <>
-          <h1 className="text-2xl font-bold mb-2">{sheet.name}</h1>
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 to-pink-50">
+      {/* Header */}
+      <header className="flex items-center justify-between bg-white/80 backdrop-blur-md px-6 py-4 shadow-md">
+        <div className="flex items-center space-x-3">
+          <Image src={Logo} alt="Logo" width={40} height={40} />
+          <h1 className="text-2xl font-bold text-pink-600">Fitness Station</h1>
+        </div>
+        <button
+          onClick={() => router.push("/workoutSheets")}
+          className="text-white bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-full transition"
+        >
+          Voltar
+        </button>
+      </header>
 
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-4">Treinos</h2>
-            {/* Menu de tabs responsivo */}
-            <div className="flex space-x-4 overflow-x-auto pb-2 border-b">
-              {workouts.map((workout) => (
+      <main className="p-8">
+        {sheet ? (
+          <>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">{sheet.name}</h2>
+            <p className="text-gray-600 mb-6">
+              Tipo: <span className="font-medium">{sheet.type}</span> | Status:{" "}
+              <span className={sheet.isActive ? "text-green-600" : "text-red-600"}>
+                {sheet.isActive ? "Ativa" : "Inativa"}
+              </span>
+            </p>
+
+            {/* Tabs */}
+            <div className="flex space-x-4 overflow-x-auto pb-2 border-b border-pink-200">
+              {workouts.map((w) => (
                 <button
-                  key={workout.id}
-                  onClick={() => setActiveWorkoutId(workout.id)}
-                  className={`px-4 py-2 whitespace-nowrap border-b-2 transition-colors duration-200 ${
-                    activeWorkoutId === workout.id
-                      ? "border-blue-500 text-blue-500"
+                  key={w.id}
+                  onClick={() => setActiveWorkoutId(w.id)}
+                  className={`px-4 py-2 whitespace-nowrap border-b-2 transition ${
+                    activeWorkoutId === w.id
+                      ? "border-pink-600 text-pink-600"
                       : "border-transparent text-gray-500 hover:text-gray-700"
                   }`}
                 >
-                  {workout.name}
+                  {w.name}
                 </button>
               ))}
             </div>
 
-            {/* Lista de exercícios para o treino ativo */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-2">Exercícios</h3>
-              {activeExercises.length > 0 ? (
-                <ul className="space-y-4">
-                  {activeExercises.map((exercise) => (
-                    <AccordionExercise key={exercise.id} exercise={exercise} />
-                  ))}
-                </ul>
+            {/* Exercises */}
+            <section className="mt-8 space-y-4">
+              {activeExercises.length ? (
+                activeExercises.map((ex) => (
+                  <AccordionExercise key={ex.id} exercise={ex} />
+                ))
               ) : (
-                <p>Nenhum exercício encontrado para este treino.</p>
+                <p className="text-gray-500">Nenhum exercício para este treino.</p>
               )}
-            </div>
-          </div>
-        </>
-      ) : (
-        <p>Carregando ficha de treino...</p>
-      )}
+            </section>
+          </>
+        ) : (
+          <p className="text-gray-600">Carregando ficha de treino...</p>
+        )}
+      </main>
     </div>
   );
 }
 
-// Componente Accordion para cada exercício
-// Componente Accordion para cada exercício
-interface AccordionExerciseProps {
-  exercise: Exercise;
-}
+interface AccordionExerciseProps { exercise: Exercise }
 
 const muscleGroupTranslations: Record<string, string> = {
   CHEST: "Peito",
@@ -143,41 +146,31 @@ const muscleGroupTranslations: Record<string, string> = {
 };
 
 function AccordionExercise({ exercise }: AccordionExerciseProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
+  const [open, setOpen] = useState(false);
   return (
-    <div className="border rounded">
+    <div className="bg-white rounded-2xl shadow-md overflow-hidden">
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full px-4 py-2 text-left flex justify-between items-center focus:outline-none"
+        onClick={() => setOpen(!open)}
+        className="w-full px-6 py-4 flex justify-between items-center focus:outline-none"
       >
-        <span className="font-bold">{exercise.name}</span>
-        <span className="text-sm text-gray-500">
-          {exercise.reps} repetições
-        </span>
+        <span className="font-semibold text-gray-800">{exercise.name}</span>
+        <span className="text-sm text-gray-500">{exercise.reps} reps</span>
       </button>
-      {isOpen && (
-        <div className="px-4 py-2 border-t">
+      {open && (
+        <div className="px-6 py-4 border-t border-pink-100 bg-pink-50">
+          <p><strong>Séries:</strong> {exercise.sets}</p>
           <p>
-            <strong>Séries:</strong> {exercise.sets}
-          </p>
-          <p>
-            <strong>Grupo muscular:</strong>{" "}
+            <strong>Grupo:</strong>{" "}
             {muscleGroupTranslations[exercise.muscleGroup] || exercise.muscleGroup}
           </p>
-          <p>
-            <strong>Descanso:</strong> {exercise.restPeriod} segundos
-          </p>
+          <p><strong>Descanso:</strong> {exercise.restPeriod}s</p>
           {exercise.videoLink && (
-            <div className="mt-2">
+            <div className="mt-4 flex justify-center">
               <ReactPlayer
-                key={exercise.id}
-                light
                 url={exercise.videoLink}
-                className="rounded-[1rem] overflow-hidden max-w-[275px] max-h-[150px] z-[1] 
-         [@media(min-width:500px)]:max-w-[342px] [@media(min-width:500px)]:max-h-[190px]
-         md:max-w-[400px] md:max-h-[222px] 
-         lg:max-w-[504px] lg:max-h-[280px]"
+                light
+                className="rounded-xl overflow-hidden max-w-full"
+                height="200px"
               />
             </div>
           )}
