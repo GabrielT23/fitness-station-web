@@ -21,13 +21,13 @@ export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "client" | "">("");
+  const [role, setRole] = useState("");
 
   useEffect(() => {
     if (user) {
       setName(user.name);
       setUsername(user.username);
-      setRole(user.role as any);
+      setRole(user.role);
       setPassword("");
     } else {
       setName("");
@@ -63,9 +63,9 @@ export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
         const updatePayload: Partial<CreateUserRequest> = {
           name: trimmedName || user.name,
           username: trimmedUsername || user.username,
-          role: role || (user.role as any),
+          role: user.role,
         };
-        if (trimmedPassword) (updatePayload as any).password = trimmedPassword;
+        if (trimmedPassword) updatePayload.password = trimmedPassword;
         await editUser(updatePayload, user.id);
         toast.success("Usuário atualizado");
       } else {
@@ -91,7 +91,7 @@ export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
           <Input label="Nome" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input label="Usuário" value={username} onChange={(e) => setUsername(e.target.value)} required />
           <Input label="Senha" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required={!user} hint={user ? "Deixe em branco para manter a senha atual" : undefined} />
-          <Select label="Função" value={role} onChange={(e) => setRole(e.target.value as any)} options={[
+          <Select label="Função" value={role} onChange={(e) => setRole(e.target.value)} options={[
             { value: "", label: "Selecione uma função" },
             { value: "admin", label: "Administrador" },
             { value: "client", label: "Aluno" },
