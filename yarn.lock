@@ -1387,7 +1387,8 @@ find-up@^5.0.0:
   version "0.1.0"
   dependencies:
     axios "^1.8.3"
-    fitness-station-web "file:C:/Users/Gabriel/AppData/Local/Yarn/Cache/v6/npm-fitness-station-web-0.1.0-2cfdd073-d78a-4619-942b-ecdd4f730e59-1743689691215/node_modules/fitness-station-web"
+    dayjs "^1.11.13"
+    fitness-station-web "file:C:/Users/Gabriel/AppData/Local/Yarn/Cache/v6/npm-fitness-station-web-0.1.0-20fbf16a-3021-4806-8a1c-7f1053d0ae8b-1755027612287/node_modules/fitness-station-web"
     js-cookie "^3.0.5"
     next "15.2.2"
     react "^19.0.0"
@@ -2282,6 +2283,11 @@ react-fast-compare@^3.0.1:
   version "3.2.2"
   resolved "https://registry.npmjs.org/react-fast-compare/-/react-fast-compare-3.2.2.tgz"
   integrity sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==
+
+react-hook-form@^7.62.0:
+  version "7.62.0"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.62.0.tgz#2d81e13c2c6b6d636548e440818341ca753218d0"
+  integrity sha512-7KWFejc98xqG/F4bAxpL41NB3o1nnvQO1RWZT3TqRZYL8RryQETGfEdVnJN2fy1crCiBLLjkRBVK05j24FxJGA==
 
 react-icons@^5.5.0:
   version "5.5.0"

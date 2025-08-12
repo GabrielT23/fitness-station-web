@@ -1,40 +1,31 @@
+"use client";
+
 interface ConfirmDialogProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    title: string
-    message: string;
-  }
-  
-  export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
-    isOpen,
-    onClose,
-    onConfirm,
-    message,
-    title
-  }) => {
-    if (!isOpen) return null;
-  
-    return (
-      <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
-          <h2 className="text-2xl font-bold mb-4">{title}</h2>
-          <p>{message}</p>
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={onClose}
-              className="bg-gray-500 text-white p-2 rounded mr-2"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={onConfirm}
-              className="bg-red-500 text-white p-2 rounded"
-            >
-              Confirmar
-            </button>
-          </div>
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title?: string;
+  message: string;
+}
+
+export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({ isOpen, onClose, onConfirm, message, title = "Confirmar" }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+        <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
+        <p className="text-gray-600 mb-4">{message}</p>
+
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">
+            Cancelar
+          </button>
+          <button onClick={onConfirm} className="px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700">
+            Confirmar
+          </button>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};

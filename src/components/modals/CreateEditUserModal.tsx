@@ -1,150 +1,112 @@
-import { useState, useEffect } from 'react';
-import { useUsers } from '@/hooks/useUsers';
-import { User, CreateUserRequest } from '@/services/usersServices';
-import { useAuth } from '@/hooks/useAuth';
+"use client";
 
-interface CreateEditUserModalProps {
+import React, { useEffect, useState } from "react";
+import { useUsers } from "@/hooks/useUsers";
+import { useAuth } from "@/hooks/useAuth";
+import { User, CreateUserRequest } from "@/services/usersServices";
+import { toast } from "react-toastify";
+import { Select } from "../inputs/Select";
+import { Input } from "../inputs/InputFormCreateWorkout";
+
+interface Props {
   user?: User;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CreateEditUserModal: React.FC<CreateEditUserModalProps> = ({ user, isOpen, onClose }) => {
+export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
   const { addUser, editUser } = useUsers();
-  const [name, setName] = useState(user ? user.name : '');
-  const [username, setUsername] = useState(user ? user.username : '');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState(user ? user.role : '');
   const { user: userLogged } = useAuth();
+
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"admin" | "client" | "">("");
 
   useEffect(() => {
     if (user) {
       setName(user.name);
       setUsername(user.username);
-      setRole(user.role);
+      setRole(user.role as any);
+      setPassword("");
     } else {
-      setName('');
-      setUsername('');
-      setRole('');
+      setName("");
+      setUsername("");
+      setRole("");
+      setPassword("");
     }
-  }, [user]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Remover espaços adicionais
-    const trimmedName = name.trim();
-    const trimmedUsername = username.trim();
-    const trimmedPassword = password.trim();
-    const trimmedRole = role.trim();
-
-    const userData: CreateUserRequest = {
-      name: trimmedName,
-      username: trimmedUsername,
-      password: trimmedPassword,
-      role: trimmedRole,
-      companyId: userLogged?.companyId || '',
-    };
-
-    if (user) {
-      if (trimmedPassword) {
-        await editUser(
-          {
-            name: trimmedName || user.name,
-            username: trimmedUsername || user.username,
-            role: trimmedRole || user.role,
-            password: trimmedPassword,
-            companyId: user.companyId,
-          },
-          user.id
-        );
-      } else {
-        await editUser(
-          {
-            name: trimmedName || user.name,
-            username: trimmedUsername || user.username,
-            role: trimmedRole || user.role,
-            companyId: user.companyId,
-          },
-          user.id
-        );
-      }
-    } else {
-      await addUser(userData);
-    }
-
-    onClose();
-  };
+  }, [user, isOpen]);
 
   if (!isOpen) return null;
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedName = name.trim();
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    if (!trimmedName || !trimmedUsername || (!user && !trimmedPassword) || !role) {
+      toast.error("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    const payload: CreateUserRequest = {
+      name: trimmedName,
+      username: trimmedUsername,
+      password: trimmedPassword,
+      role: role,
+      companyId: userLogged?.companyId || "",
+    };
+
+    try {
+      if (user) {
+        // update
+        const updatePayload: Partial<CreateUserRequest> = {
+          name: trimmedName || user.name,
+          username: trimmedUsername || user.username,
+          role: role || (user.role as any),
+        };
+        if (trimmedPassword) (updatePayload as any).password = trimmedPassword;
+        await editUser(updatePayload, user.id);
+        toast.success("Usuário atualizado");
+      } else {
+        await addUser(payload);
+        toast.success("Usuário criado");
+      }
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao salvar usuário");
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-10">
-      <div className="bg-white p-6 rounded shadow-md max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold mb-4">{user ? 'Editar Usuário' : 'Criar Usuário'}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-2">Nome</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="border p-2 w-full rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Usuário</label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="border p-2 w-full rounded"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Senha</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="border p-2 w-full rounded"
-              required={!user}
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block mb-2">Função</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="border p-2 w-full rounded"
-              required
-            >
-              <option value="">Selecione uma função</option>
-              <option value="admin">Administrador</option>
-              <option value="client">Aluno</option>
-            </select>
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors"
-            >
-              {user ? 'Salvar' : 'Criar'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors"
-            >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">{user ? "Editar usuário" : "Criar usuário"}</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input label="Nome" value={name} onChange={(e) => setName(e.target.value)} required />
+          <Input label="Usuário" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          <Input label="Senha" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required={!user} hint={user ? "Deixe em branco para manter a senha atual" : undefined} />
+          <Select label="Função" value={role} onChange={(e) => setRole(e.target.value as any)} options={[
+            { value: "", label: "Selecione uma função" },
+            { value: "admin", label: "Administrador" },
+            { value: "client", label: "Aluno" },
+          ]} required />
+
+          <div className="flex justify-end gap-3 mt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">
               Cancelar
+            </button>
+            <button type="submit" className="px-4 py-2 rounded-full bg-pink-600 text-white hover:bg-pink-700">
+              {user ? "Salvar" : "Criar"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default CreateEditUserModal;
+}
