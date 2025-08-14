@@ -252,12 +252,17 @@ export default function WorkoutSheetList() {
             aria-modal="true"
             aria-labelledby="users-modal-title"
           >
+            {/* Overlay */}
             <div
               className="absolute inset-0 bg-black/50"
               onClick={() => setIsUserModalOpen(false)}
             />
-            <div className="relative w-full max-w-3xl mx-4 md:mx-0 bg-white rounded-2xl shadow-lg overflow-hidden max-h-[90vh]">
-              <div className="flex items-center justify-between px-6 py-4 border-b">
+
+            {/* Modal box */}
+            <div className="relative w-full max-w-3xl mx-4 md:mx-0 bg-white rounded-2xl shadow-lg overflow-hidden max-h-[90vh] flex flex-col">
+              
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b flex-shrink-0">
                 <h3 id="users-modal-title" className="text-lg font-semibold text-gray-800">
                   Usuários vinculados — {selectedSheet.name}
                 </h3>
@@ -266,7 +271,8 @@ export default function WorkoutSheetList() {
                 </button>
               </div>
 
-              <div className="p-6 space-y-4 overflow-auto">
+              {/* Scrollable content */}
+              <div className="p-6 space-y-4 overflow-y-auto flex-1">
                 {selectedSheet.WorkoutSheetUsers.length > 0 ? (
                   <ul className="space-y-3">
                     {selectedSheet.WorkoutSheetUsers.map((w) => (
@@ -284,7 +290,8 @@ export default function WorkoutSheetList() {
                 )}
               </div>
 
-              <div className="px-6 py-4 border-t flex justify-end gap-3">
+              {/* Footer */}
+              <div className="px-6 py-4 border-t flex justify-end gap-3 flex-shrink-0">
                 <button
                   onClick={() => setIsUserModalOpen(false)}
                   className="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50"
@@ -295,6 +302,7 @@ export default function WorkoutSheetList() {
             </div>
           </div>
         )}
+
 
         {/* Mobile filter bottom sheet */}
         {isFilterSheetOpen && (

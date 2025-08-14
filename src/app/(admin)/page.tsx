@@ -121,11 +121,7 @@ export default function AdminHomePage() {
                     </p>
                   </div>
                   <button
-                    onClick={() =>
-                      window.location.assign(
-                        `/admin/workoutSheets/${sheet.id}`
-                      )
-                    }
+                    onClick={() => {}}
                     className="text-white bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-full transition"
                   >
                     Ver detalhes
