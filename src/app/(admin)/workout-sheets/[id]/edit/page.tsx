@@ -680,7 +680,7 @@ function WorkoutsTab({
       {sheet.workouts.length === 0 && !addingWorkout && (
         <div className="text-center py-12 text-gray-500 bg-white rounded-2xl shadow-sm">
           <p className="text-lg mb-1">Nenhum treino cadastrado.</p>
-          <p className="text-sm">Clique em "+ Adicionar Treino" para começar.</p>
+          <p className="text-sm">Clique em &quot;+ Adicionar Treino&quot; para começar.</p>
         </div>
       )}
 

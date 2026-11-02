@@ -46,8 +46,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
 
   useEffect(() => {
     refreshSheets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addSheet = async (newSheet: CreateWorkoutSheetRequest) => {
     try {

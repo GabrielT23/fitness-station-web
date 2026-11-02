@@ -177,7 +177,7 @@ export default function ClientAssessmentDetailPage() {
           })}
 
           <p className="text-xs text-center text-gray-400 mt-6 no-print">
-            Use o botão "Imprimir / PDF" para salvar este documento.
+            Use o botão &quot;Imprimir / PDF&quot; para salvar este documento.
           </p>
         </main>
       </div>

@@ -23,10 +23,6 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const fetchUsers = useCallback(async () => {
     try {
       const data = await listUsers();
@@ -37,6 +33,10 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const addUser = useCallback(async (user: CreateUserRequest) => {
     try {
