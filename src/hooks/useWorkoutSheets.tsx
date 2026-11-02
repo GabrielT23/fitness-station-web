@@ -18,6 +18,7 @@ interface UseWorkoutSheetsReturn {
   sheets: WorkoutSheet[];
   loading: boolean;
   error: string | null;
+  refreshSheets: () => Promise<void>;
   addSheet: (newSheet: CreateWorkoutSheetRequest) => Promise<void>;
   editSheet: (updatedSheet: WorkoutSheet, id: string) => Promise<void>;
   removeSheet: (id: string) => Promise<void>;
@@ -31,20 +32,21 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
   const [sheets, setSheets] = useState<WorkoutSheet[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const fetchSheets = async () => {
-      try {
-        setLoading(true);
-        const data = await listWorkoutSheets();
-        setSheets(data);
-      } catch {
-        toast.error('Erro ao buscar fichas de treino.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const refreshSheets = async () => {
+    try {
+      setLoading(true);
+      const data = await listWorkoutSheets();
+      setSheets(data);
+    } catch {
+      toast.error('Erro ao buscar fichas de treino.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchSheets();
+  useEffect(() => {
+    refreshSheets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addSheet = async (newSheet: CreateWorkoutSheetRequest) => {
@@ -73,17 +75,21 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
     try {
       await linkSheetToUser({ userId, workoutSheetId });
       toast.success('Ficha de treino vinculada ao usuário com sucesso!');
-    } catch {
-      toast.error('Erro ao vincular ficha de treino ao usuário.');
+    } catch (err) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const message = axiosErr.response?.data?.message ?? 'Erro ao vincular ficha de treino ao usuário.';
+      toast.error(message);
+      throw err;
     }
   };
 
   const unLinkSheet = async (userId: string, workoutSheetId: string) => {
     try {
       await unLinkSheetToUser({ userId, workoutSheetId });
-      toast.success('Ficha de treino vinculada ao usuário com sucesso!');
-    } catch {
-      toast.error('Erro ao vincular ficha de treino ao usuário.');
+      toast.success('Ficha de treino desvinculada do usuário com sucesso!');
+    } catch (err) {
+      toast.error('Erro ao desvincular ficha de treino do usuário.');
+      throw err;
     }
   };
 
@@ -98,7 +104,7 @@ export const WorkoutSheetsProvider = ({ children }: { children: ReactNode }) => 
   };
 
   return (
-    <WorkoutSheetsContext.Provider value={{ sheets, loading, error: null, addSheet, editSheet, removeSheet, linkSheet, unLinkSheet }}>
+    <WorkoutSheetsContext.Provider value={{ sheets, loading, error: null, refreshSheets, addSheet, editSheet, removeSheet, linkSheet, unLinkSheet }}>
       {children}
     </WorkoutSheetsContext.Provider>
   );

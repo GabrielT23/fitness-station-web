@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useWorkoutSheets } from "@/hooks/useWorkoutSheets";
 import { WorkoutSheet } from "@/services/workoutSheetService";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function WorkoutSheetList() {
-  const { sheets, loading, removeSheet } = useWorkoutSheets();
+  const { sheets, loading, removeSheet, unLinkSheet } = useWorkoutSheets();
+  const router = useRouter();
   const [selectedSheet, setSelectedSheet] = useState<WorkoutSheet | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [unlinkingUserId, setUnlinkingUserId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -53,6 +56,26 @@ export default function WorkoutSheetList() {
   const handleViewUsers = (sheet: WorkoutSheet) => {
     setSelectedSheet(sheet);
     setIsUserModalOpen(true);
+  };
+
+  const handleUnlinkUser = async (userId: string, workoutSheetId: string) => {
+    if (!confirm("Desvincular este usuário da ficha?")) return;
+    setUnlinkingUserId(userId);
+    try {
+      await unLinkSheet(userId, workoutSheetId);
+      setSelectedSheet((prev) =>
+        prev
+          ? {
+              ...prev,
+              WorkoutSheetUsers: prev.WorkoutSheetUsers.filter((wsu) => wsu.userId !== userId),
+            }
+          : prev
+      );
+    } catch {
+      // toast já tratado no hook
+    } finally {
+      setUnlinkingUserId(null);
+    }
   };
 
   const filtered = useMemo(() => {
@@ -216,27 +239,44 @@ export default function WorkoutSheetList() {
                   </p>
                 </div>
 
-                <div className="mt-4 flex gap-3">
+                <div className="mt-4 flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => router.push(`/workout-sheets/${sheet.id}/edit`)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-pink-600 hover:bg-pink-700 text-white text-sm transition"
+                    aria-label={`Editar ficha ${sheet.name}`}
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                      <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    Editar
+                  </button>
+
                   <button
                     onClick={() => handleViewUsers(sheet)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-700 text-white transition"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-pink-200 text-pink-600 hover:bg-pink-50 text-sm transition"
                     aria-label={`Ver usuários da ficha ${sheet.name}`}
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" />
-                      <circle cx="9" cy="7" r="4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M23 21v-2a4 4 0 00-3-3.87" />
+                      <circle cx="9" cy="7" r="4" strokeWidth="2" />
                     </svg>
-                    Ver Usuários
+                    Usuários
                   </button>
 
                   <button
                     onClick={() => handleDelete(sheet.id)}
                     disabled={deletingId === sheet.id}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 transition disabled:opacity-60"
+                    className="inline-flex items-center justify-center px-3 py-2 rounded-xl bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm transition disabled:opacity-60"
                     aria-disabled={deletingId === sheet.id}
                   >
-                    {deletingId === sheet.id ? "Excluindo..." : "Excluir"}
+                    {deletingId === sheet.id ? "..." : (
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline strokeWidth="2" strokeLinecap="round" points="3 6 5 6 21 6" />
+                        <path strokeWidth="2" strokeLinecap="round" d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                        <path strokeWidth="2" strokeLinecap="round" d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                      </svg>
+                    )}
                   </button>
                 </div>
               </article>
@@ -274,14 +314,22 @@ export default function WorkoutSheetList() {
               {/* Scrollable content */}
               <div className="p-6 space-y-4 overflow-y-auto flex-1">
                 {selectedSheet.WorkoutSheetUsers.length > 0 ? (
-                  <ul className="space-y-3">
+                  <ul className="space-y-2">
                     {selectedSheet.WorkoutSheetUsers.map((w) => (
-                      <li key={w.user.id} className="flex items-center justify-between bg-pink-50 rounded-lg p-3">
+                      <li key={w.user.id} className="flex items-center justify-between bg-pink-50 rounded-xl p-3 group">
                         <div>
                           <p className="font-medium text-gray-800">{w.user.name}</p>
-                          <p className="text-sm text-gray-500">{w.user.username} • {w.user.role}</p>
+                          <p className="text-sm text-gray-500">
+                            @{w.user.username} • Vinculado em {new Date(w.createdAt).toLocaleDateString("pt-BR")}
+                          </p>
                         </div>
-                        <div className="text-sm text-gray-600">{new Date(w.createdAt).toLocaleDateString()}</div>
+                        <button
+                          onClick={() => handleUnlinkUser(w.userId, selectedSheet.id)}
+                          disabled={unlinkingUserId === w.userId}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-50 transition opacity-0 group-hover:opacity-100"
+                        >
+                          {unlinkingUserId === w.userId ? "..." : "Desvincular"}
+                        </button>
                       </li>
                     ))}
                   </ul>

@@ -21,11 +21,9 @@ export default function AssignWorkoutSheetModal({ user, onClose }: Props) {
     }
     try {
       await linkSheet(user.id, selectedSheetId);
-      toast.success("Ficha atribuída ao usuário.");
       onClose();
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao atribuir ficha.");
+    } catch {
+      // toast já disparado pelo hook useWorkoutSheets
     }
   };
 

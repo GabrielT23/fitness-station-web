@@ -64,16 +64,19 @@ export function setupAPIClient() {
             return api.request(error.config);
           }
         } catch (refreshError) {
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
-          window.location.href = "/login";
+          const axiosRefreshError = refreshError as AxiosError;
+          const status = axiosRefreshError.response?.status;
+          // Só desloga se o refresh token também foi rejeitado (expirado/inválido)
+          if (status === 401 || status === 403) {
+            Cookies.remove("access_token");
+            Cookies.remove("refresh_token");
+            Cookies.remove("userId");
+            window.location.href = "/login";
+          }
           return Promise.reject(refreshError);
         }
       }
 
-      if (error.response?.status === 404) {
-        Cookies.remove("access_token");
-      }
       return Promise.reject(error);
     }
   );
