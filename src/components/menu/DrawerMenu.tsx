@@ -10,6 +10,7 @@ import {
   FaRegChartBar,
   FaPlusCircle,
   FaSignOutAlt,
+  FaClipboardList,
 } from "react-icons/fa";
 
 const DrawerMenu = () => {
@@ -25,6 +26,7 @@ const DrawerMenu = () => {
       label: "Criar Ficha",
       icon: FaPlusCircle,
     },
+    { href: "/avaliacoes", label: "Avaliações", icon: FaClipboardList },
   ];
 
   const logout = () => {

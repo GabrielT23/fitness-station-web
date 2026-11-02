@@ -36,7 +36,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Card de Fichas de Avaliação */}
           <div
-            onClick={() => alert("Fluxo de fichas de avaliações ainda não implementado")}
+            onClick={() => router.push("/minhas-avaliacoes")}
             className="
               cursor-pointer bg-white p-6 rounded-2xl shadow-lg
               hover:shadow-xl transform hover:-translate-y-1 transition
