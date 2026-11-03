@@ -23,6 +23,7 @@ import {
 } from "@/services/exerciseService";
 import { listUsers, User } from "@/services/usersServices";
 import { useWorkoutSheets } from "@/hooks/useWorkoutSheets";
+import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -251,6 +252,7 @@ function ExerciseRow({
   });
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSave = async () => {
     if (!form.name.trim()) return;
@@ -268,7 +270,6 @@ function ExerciseRow({
   };
 
   const handleDelete = async () => {
-    if (!confirm("Excluir este exercício?")) return;
     setDeleting(true);
     try {
       await apiDeleteExercise(exercise.id);
@@ -319,7 +320,7 @@ function ExerciseRow({
           )}
         </p>
       </div>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+      <div className="flex items-center gap-1 transition">
         <button
           onClick={() => setEditing(true)}
           className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition"
@@ -328,7 +329,7 @@ function ExerciseRow({
           <IconEdit />
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => setConfirmDelete(true)}
           disabled={deleting}
           className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition disabled:opacity-50"
           title="Excluir exercício"
@@ -336,6 +337,14 @@ function ExerciseRow({
           <IconTrash />
         </button>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={handleDelete}
+        title="Excluir exercício"
+        message={`Deseja excluir o exercício "${exercise.name}"? Esta ação é irreversível.`}
+      />
     </div>
   );
 }
@@ -356,6 +365,7 @@ function WorkoutCard({
   const [nameValue, setNameValue] = useState(workout.name);
   const [savingName, setSavingName] = useState(false);
   const [deletingWorkout, setDeletingWorkout] = useState(false);
+  const [confirmDeleteWorkout, setConfirmDeleteWorkout] = useState(false);
   const [addingExercise, setAddingExercise] = useState(false);
   const [exerciseForm, setExerciseForm] = useState<ExerciseForm>(EMPTY_EXERCISE);
   const [savingExercise, setSavingExercise] = useState(false);
@@ -381,7 +391,6 @@ function WorkoutCard({
   };
 
   const handleDeleteWorkout = async () => {
-    if (!confirm(`Excluir o treino "${workout.name}" e todos os seus exercícios?`)) return;
     setDeletingWorkout(true);
     try {
       await apiDeleteWorkout(workout.id);
@@ -502,7 +511,7 @@ function WorkoutCard({
             </button>
           )}
           <button
-            onClick={handleDeleteWorkout}
+            onClick={() => setConfirmDeleteWorkout(true)}
             disabled={deletingWorkout}
             className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition disabled:opacity-50"
             title="Excluir treino"
@@ -511,6 +520,14 @@ function WorkoutCard({
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDeleteWorkout}
+        onClose={() => setConfirmDeleteWorkout(false)}
+        onConfirm={handleDeleteWorkout}
+        title="Excluir treino"
+        message={`Deseja excluir o treino "${workout.name}" e todos os seus exercícios? Esta ação é irreversível.`}
+      />
 
       {/* Expanded: exercises */}
       {expanded && (

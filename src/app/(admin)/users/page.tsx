@@ -8,7 +8,6 @@ import CreateEditUserModal from "@/components/modals/CreateEditUserModal";
 import AssignWorkoutSheetModal from "@/components/modals/AssignWorkoutSheetModal";
 import { ConfirmDialog } from "@/components/modals/ConfirmDialog";
 import { UserCard } from "@/components/cards/UserCard";
-import { toast } from "react-toastify";
 import { User } from "@/services/usersServices";
 
 /**
@@ -72,13 +71,8 @@ export default function UserPage() {
 
   const handleDeleteUser = async (userId?: string) => {
     if (!userId) return;
-    try {
-      await removeUser(userId);
-      toast.success("Usuário removido");
-      setIsConfirmDeleteOpen(false);
-    } catch {
-      toast.error("Erro ao remover usuário");
-    }
+    await removeUser(userId);
+    setIsConfirmDeleteOpen(false);
   };
 
   const applyFilters = () => {
