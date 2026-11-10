@@ -108,6 +108,11 @@ export default function LoginPage() {
             Entre em contato pelo WhatsApp
           </a>
         </p>
+        <p className="text-center mt-4">
+          <a href="/privacidade" className="text-xs text-gray-400 hover:text-pink-500 transition-colors">
+            Política de Privacidade
+          </a>
+        </p>
       </div>
     </div>
   );

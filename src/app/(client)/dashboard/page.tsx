@@ -89,6 +89,12 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      <footer className="text-center py-6">
+        <a href="/privacidade" className="text-xs text-gray-400 hover:text-pink-500 transition-colors">
+          Política de Privacidade
+        </a>
+      </footer>
     </div>
   );
 }
