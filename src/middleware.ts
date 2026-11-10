@@ -5,8 +5,10 @@ export function middleware(req: NextRequest) {
   const userType = req.cookies.get("user_type")?.value;
   const { pathname } = req.nextUrl;
 
+  const publicRoutes = ["/login", "/privacidade"];
+
   // Se o usuário NÃO estiver autenticado e tentar acessar uma página protegida
-  if (!token && pathname !== "/login") {
+  if (!token && !publicRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
