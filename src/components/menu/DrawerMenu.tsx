@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { logout as logoutService } from "@/services/authService";
 import {
   FaTimes,
   FaBars,
@@ -29,15 +30,9 @@ const DrawerMenu = () => {
     { href: "/avaliacoes", label: "Avaliações", icon: FaClipboardList },
   ];
 
-  const logout = () => {
-    document.cookie =
-      "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.cookie =
-      "user_type=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.cookie = "userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    document.cookie =
-      "companyId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-    router.push("/login");
+  const logout = async () => {
+    await logoutService();
+    router.replace("/login");
   };
 
   return (

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get("access_token")?.value;
+  const accessToken = req.cookies.get("access_token")?.value;
+  const refreshToken = req.cookies.get("refresh_token")?.value;
   const userType = req.cookies.get("user_type")?.value;
   const { pathname } = req.nextUrl;
+
+  // Com refresh token a sessão continua válida: o cliente renova o access token sozinho.
+  const token = accessToken || refreshToken;
 
   const publicRoutes = ["/login", "/privacidade"];
 

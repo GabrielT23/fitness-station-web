@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { useUsers } from "@/hooks/useUsers";
-import { useAuth } from "@/hooks/useAuth";
-import { User, CreateUserRequest } from "@/services/usersServices";
+import { User, CreateUserRequest, EditUserRequest } from "@/services/usersServices";
 import { toast } from "react-toastify";
+import { getApiErrorMessage } from "@/libs/apiError";
 import { Select } from "../inputs/Select";
 import { Input } from "../inputs/InputFormCreateWorkout";
 
@@ -16,7 +16,6 @@ interface Props {
 
 export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
   const { addUser, editUser } = useUsers();
-  const { user: userLogged } = useAuth();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -49,33 +48,27 @@ export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
       return;
     }
 
-    const payload: CreateUserRequest = {
-      name: trimmedName,
-      username: trimmedUsername,
-      password: trimmedPassword,
-      role: role,
-      companyId: userLogged?.companyId || "",
-    };
-
     try {
+      // Success toasts come from the hook; errors are shown here with the API message.
       if (user) {
-        // update
-        const updatePayload: Partial<CreateUserRequest> = {
-          name: trimmedName || user.name,
-          username: trimmedUsername || user.username,
-          role: user.role,
+        const updatePayload: EditUserRequest = {
+          name: trimmedName,
+          username: trimmedUsername,
         };
         if (trimmedPassword) updatePayload.password = trimmedPassword;
         await editUser(updatePayload, user.id);
-        toast.success("Usuário atualizado");
       } else {
+        const payload: CreateUserRequest = {
+          name: trimmedName,
+          username: trimmedUsername,
+          password: trimmedPassword,
+          role: role as CreateUserRequest["role"],
+        };
         await addUser(payload);
-        toast.success("Usuário criado");
       }
       onClose();
     } catch (err) {
-      console.error(err);
-      toast.error("Erro ao salvar usuário");
+      toast.error(getApiErrorMessage(err, "Erro ao salvar usuário."));
     }
   };
 
@@ -91,11 +84,12 @@ export default function CreateEditUserModal({ user, isOpen, onClose }: Props) {
           <Input label="Nome" value={name} onChange={(e) => setName(e.target.value)} required />
           <Input label="Usuário" value={username} onChange={(e) => setUsername(e.target.value)} required />
           <Input label="Senha" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required={!user} hint={user ? "Deixe em branco para manter a senha atual" : undefined} />
-          <Select label="Função" value={role} onChange={(e) => setRole(e.target.value)} options={[
+          <Select label="Função" value={role} onChange={(e) => setRole(e.target.value)} disabled={!!user} options={[
             { value: "", label: "Selecione uma função" },
             { value: "admin", label: "Administrador" },
             { value: "client", label: "Aluno" },
           ]} required />
+          {user && <p className="text-sm text-gray-500 -mt-2">A função não pode ser alterada.</p>}
 
           <div className="flex justify-end gap-3 mt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">

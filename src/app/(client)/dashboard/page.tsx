@@ -2,16 +2,14 @@
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Logo from "../../../assets/logo.png";
+import { logout as logoutService } from "../../../services/authService";
 
 export default function Dashboard() {
   const router = useRouter();
 
-  const logout = () => {
-    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    document.cookie = 'user_type=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    document.cookie = 'userId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    document.cookie = 'companyId=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    router.push("/login");
+  const logout = async () => {
+    await logoutService();
+    router.replace("/login");
   };
 
   return (
