@@ -1,5 +1,72 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
+import { clearSession, setSession } from "./session";
+
+const REQUEST_TIMEOUT_MS = 15000;
+
+/** Auth endpoints never trigger a refresh: a 401 there is an answer, not an expired token. */
+const AUTH_PATHS = ["/auth/login", "/auth/refresh", "/auth/logout"];
+
+/** Raised only when the server rejects the refresh token (or there is no session to refresh). */
+export class SessionExpiredError extends Error {
+  constructor() {
+    super("Sessão expirada");
+    this.name = "SessionExpiredError";
+  }
+}
+
+type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+/**
+ * Single-flight refresh shared by every API instance. While one refresh is running,
+ * other callers receive the same promise instead of calling /auth/refresh again.
+ */
+let inFlightRefresh: Promise<void> | null = null;
+
+async function requestNewTokens(): Promise<void> {
+  const baseURL = process.env.NEXT_PUBLIC_API_URL;
+  const refreshToken = Cookies.get("refresh_token");
+  const userId = Cookies.get("userId");
+
+  if (!baseURL || !refreshToken || !userId) {
+    clearSession();
+    throw new SessionExpiredError();
+  }
+
+  try {
+    const { data } = await axios.post<{ access_token: string; refresh_token: string }>(
+      `${baseURL}/auth/refresh`,
+      { refreshToken, userId },
+      { timeout: REQUEST_TIMEOUT_MS }
+    );
+    setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+  } catch (error) {
+    const status = (error as AxiosError).response?.status;
+    if (status === 401 || status === 403) {
+      clearSession();
+      throw new SessionExpiredError();
+    }
+    // Network error, timeout, 429 or 5xx: the session may still be valid, so keep the cookies.
+    throw error;
+  }
+}
+
+/** Renews the access token. Concurrent callers share one request. */
+export function refreshSession(): Promise<void> {
+  if (!inFlightRefresh) {
+    const pending: Promise<void> = requestNewTokens().finally(() => {
+      if (inFlightRefresh === pending) inFlightRefresh = null;
+    });
+    inFlightRefresh = pending;
+  }
+  return inFlightRefresh;
+}
+
+function redirectToLogin() {
+  if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+    window.location.href = "/login";
+  }
+}
 
 export function setupAPIClient() {
   const baseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -8,7 +75,7 @@ export function setupAPIClient() {
     throw new Error("Não foi possível carregar API_BASE_URL");
   }
 
-  const api = axios.create({ baseURL });
+  const api = axios.create({ baseURL, timeout: REQUEST_TIMEOUT_MS });
 
   // Injeta o token atual em CADA requisição (não captura na criação da instância)
   api.interceptors.request.use((config) => {
@@ -22,51 +89,32 @@ export function setupAPIClient() {
   api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-      const originalRequest = error.config as typeof error.config & { _retry?: boolean };
+      const original = error.config as RetriableConfig | undefined;
+      const isAuthEndpoint = AUTH_PATHS.some((path) => original?.url?.includes(path));
 
-      // Evita loop infinito de retentativas
-      if (error.response?.status === 401 && !originalRequest?._retry) {
-        if (originalRequest) originalRequest._retry = true;
+      if (!original || error.response?.status !== 401 || original._retry || isAuthEndpoint) {
+        return Promise.reject(error);
+      }
+      original._retry = true;
 
-        // Lê os cookies AGORA (valores mais recentes, não os capturados no início)
-        const refreshToken = Cookies.get("refresh_token");
-        const userId = Cookies.get("userId");
+      // Se outra requisição já renovou o token enquanto esta esperava, basta repetir.
+      const sentToken = String(original.headers?.Authorization ?? "").replace(/^Bearer\s+/, "");
+      const currentToken = Cookies.get("access_token") ?? "";
+      const alreadyRenewed = currentToken !== "" && currentToken !== sentToken;
 
-        if (!refreshToken || !userId) {
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
-          Cookies.remove("userId");
-          window.location.href = "/login";
-          return Promise.reject(error);
+      try {
+        if (!alreadyRenewed) {
+          await refreshSession();
         }
-
-        try {
-          const refreshResponse = await axios.post(`${baseURL}/auth/refresh`, {
-            refreshToken,
-            userId,
-          });
-
-          const { access_token, refresh_token } = refreshResponse.data;
-
-          Cookies.set("access_token", access_token);
-          Cookies.set("refresh_token", refresh_token);
-
-          // Repete a requisição original — o request interceptor acima vai
-          // usar o novo token que acabou de ser salvo no cookie
-          return api.request(originalRequest!);
-        } catch (refreshError) {
-          const status = (refreshError as AxiosError).response?.status;
-          if (status === 401 || status === 403) {
-            Cookies.remove("access_token");
-            Cookies.remove("refresh_token");
-            Cookies.remove("userId");
-            window.location.href = "/login";
-          }
-          return Promise.reject(refreshError);
+      } catch (refreshError) {
+        if (refreshError instanceof SessionExpiredError) {
+          redirectToLogin();
         }
+        // Erros de rede, 429 e 5xx não derrubam a sessão: só a requisição original falha.
+        return Promise.reject(error);
       }
 
-      return Promise.reject(error);
+      return api.request(original);
     }
   );
 

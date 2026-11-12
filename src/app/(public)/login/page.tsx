@@ -4,7 +4,19 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Logo from '../../../assets/logo.png';
 import { login } from '../../../services/authService';
+import { setSession } from '../../../libs/session';
 import { toast } from 'react-toastify';
+import { AxiosError } from 'axios';
+
+function loginErrorMessage(error: unknown): string {
+  const status = (error as AxiosError).response?.status;
+  if (status === 401) return 'Usuário ou senha incorretos';
+  if (status === 429) return 'Muitas tentativas. Tente novamente em instantes.';
+  if (!(error as AxiosError).response) {
+    return 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.';
+  }
+  return 'Não foi possível entrar. Tente novamente.';
+}
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -16,21 +28,25 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const u = username.trim(), p = password.trim();
+    setUsername(u);
     if (!u || !p) {
       toast.error('Preencha todos os campos');
       return;
     }
+    setError(null);
     setLoading(true);
     try {
       const data = await login({ username: u, password: p });
-      document.cookie = `refresh_token=${data.refresh_token}; path=/;`;
-      document.cookie = `access_token=${data.access_token}; path=/;`;
-      document.cookie = `user_type=${data.role}; path=/;`;
-      document.cookie = `userId=${data.userId}; path=/;`;
-      document.cookie = `companyId=${data.companyId}; path=/;`;
+      setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        role: data.role,
+        userId: data.userId,
+        companyId: data.companyId,
+      });
       router.push(data.role === 'client' ? '/dashboard' : '/');
-    } catch {
-      setError('Usuário ou senha inválidos');
+    } catch (err) {
+      setError(loginErrorMessage(err));
     } finally {
       setLoading(false);
     }

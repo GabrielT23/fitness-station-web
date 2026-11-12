@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, Dispatch, SetStateAction, useCallback, ReactNode } from 'react';
-import { listUsers, createUser, updateUser, deleteUser, CreateUserRequest, setPayment } from '../services/usersServices';
+import { listUsers, createUser, updateUser, deleteUser, CreateUserRequest, EditUserRequest, setPayment } from '../services/usersServices';
 import { User } from '@/services/usersServices';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,7 +12,7 @@ interface UseUsersReturn {
   loading: boolean;
   fetchUsers: () => Promise<void>;
   addUser: (user: CreateUserRequest) => Promise<void>;
-  editUser: (user: Partial<CreateUserRequest>, id: string) => Promise<void>;
+  editUser: (user: EditUserRequest, id: string) => Promise<void>;
   setPaymentUser: (id: string) => Promise<void>;
   removeUser: (userId: string) => Promise<void>;
 }
@@ -38,24 +38,17 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
     fetchUsers();
   }, [fetchUsers]);
 
+  // addUser/editUser rethrow on failure: the modal shows the API message and stays open.
   const addUser = useCallback(async (user: CreateUserRequest) => {
-    try {
-      const newUser = await createUser(user);
-      setUsers((prev) => [...prev, newUser]);
-      toast.success('Usuário criado com sucesso!');
-    } catch {
-      toast.error('Erro ao criar usuário.');
-    }
+    const newUser = await createUser(user);
+    setUsers((prev) => [...prev, newUser]);
+    toast.success('Usuário criado com sucesso!');
   }, []);
 
-  const editUser = useCallback(async (user: Partial<CreateUserRequest>, id: string) => {
-    try {
-      const updatedUser = await updateUser(id, user);
-      setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
-      toast.success('Usuário atualizado com sucesso!');
-    } catch {
-      toast.error('Erro ao atualizar usuário.');
-    }
+  const editUser = useCallback(async (user: EditUserRequest, id: string) => {
+    const updatedUser = await updateUser(id, user);
+    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+    toast.success('Usuário atualizado com sucesso!');
   }, []);
 
   const setPaymentUser = useCallback(async (id: string) => {
